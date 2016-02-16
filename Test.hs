@@ -1,8 +1,10 @@
 -- This is how we import only a few definitions from Test.Tasty
 import Test.Tasty (defaultMain, testGroup, TestTree)
 import Test.Tasty.HUnit
+import Test.Tasty.QuickCheck
 
 import Log
+import LogInstances
 
 -- import everything *except* `main` from LogAnalysis
 import LogAnalysis hiding (main)
@@ -116,6 +118,21 @@ testes = testGroup "unit tests"
 
 
 
+    , testProperty "build sorted"
+    (\msgList -> isSorted (inOrder (build msgList)))
+
+    -- show :: Int -> String
+    -- gives the String representation of an Int
+    -- Use show to test your code to parse Ints
+
+    -- Write a function that takes a MessageType, and makes a String
+    -- with the same format as the log file:
+    -- stringMessageType :: MessageType -> String
+    -- Use this to test your code that parses MessageType
+
+    -- Make another function that makes a String from a whole LogMessage
+    -- stringLogMessage :: LogMessage -> String
+    -- Use it to test parseMessage
   ]
 
 
