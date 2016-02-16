@@ -6,50 +6,117 @@ import Log
 
 -- import everything *except* `main` from LogAnalysis
 import LogAnalysis hiding (main)
-
-tests :: TestTree
-tests = testGroup "unit tests"
+new :: LogMessage
+new = (LogMessage Warning 3 "hi1")
+new2 :: LogMessage
+new2 = (LogMessage Warning 4 "by1e")
+new3 :: LogMessage
+new3 = (LogMessage Warning 5 "hi2")
+new4 :: LogMessage
+new4 = (LogMessage Warning 6 "bye2")
+new5 :: LogMessage
+new5 = (LogMessage Warning 7 "hi3")
+new6 :: LogMessage
+new6 = (LogMessage Warning 8 "bye3")
+new7 :: LogMessage
+new7 = (LogMessage Warning 9 "hi4")
+new8 :: LogMessage
+new8 = (LogMessage Warning 10 "bye4")
+testes :: TestTree
+testes = testGroup "unit tests"
   [ testCase "parseMessage Info"
     ( parseMessage "I 6 Completed armadillo processing" @?=
       LogMessage Info 6 "Completed armadillo processing" )
-    -- If you don't have a function called praseMessage, change the
-    -- test to match your code.
-
-    -- Add at least 3 more test cases for 'parseMessage', including
-    -- one with an error, one with a warning, and one with an Unknown
 
 
-    -- We should also test the smaller parts.  Change the test below
-    -- to match the code you actually wrote.
-  , testCase "parseMessageType I"
-    ( parseMessageType "I 6 Completed armadillo processing"
-      @?= Just Info)
+    ,testCase "parseMessage error"
+    ( parseMessage "E 34 6 Completed armadillo processing" @?=
+      LogMessage (Error 34) 6 "Completed armadillo processing" )
 
-    -- Add at least 3 more tests for MessageType parsing in isolation.
 
-    -- Add tests for timestamp parsing.  Think in particular about
-    -- what the function does if the input doesn't start with a digit,
-    -- or has some spaces followed by digits.
+    , testCase "parseMessage warning"
+    ( parseMessage "W 6 Completed armadillo processing" @?=
+      LogMessage Warning 6 "Completed armadillo processing" )
 
-    -- How many tests do you think is enough?  Write at least 3
-    -- sentences explaining your decision.
+    , testCase "parseMessage unknown"
+    ( parseMessage "wierd 6 Completed armadillo processing" @?=
+      Unknown "wierd 6 Completed armadillo processing" )
 
-    -- Write at least 5 tests for 'insert', with sufficiently
-    -- different inputs to test most of the cases.  Look at your code
-    -- for 'insert', and any bugs you ran into while writing it.
+    ,testCase "parseType warning"
+    ( parseType "W 6 Completed armadillo processing" @?=
+      (Just Warning," 6 Completed armadillo processing"))
 
-    -- Next week we'll have the computer write more tests, to help us
-    -- be more confident that we've tested all the tricky bits and
-    -- edge cases.  There are also tools to make sure that our tests
-    -- actually run every line of our code (called "coverage"), but we
-    -- won't learn those this year.
+    ,testCase "parseType Info"
+    ( parseType "I 6 Completed armadillo processing" @?=
+      (Just Info," 6 Completed armadillo processing"))
 
-    -- Write tests for 'inOrder'.  Remember that the input tree is
-    -- meant to already be sorted, so it's fine to only test such
-    -- inputs.  You may want to reuse MessageTrees from the tests on
-    -- 'insert' above.  You may even want to move them elsewhere in
-    -- the file and give them names, to more easiely reuse them.
+
+    ,testCase "parseType error"
+    ( parseType "E 34 6 Completed armadillo processing" @?=
+      (Just (Error 34), "6 Completed armadillo processing"))
+
+    ,testCase "er"
+    ( er " 34 6 Completed armadillo processing" @?=
+      (Just (Error 34), "6 Completed armadillo processing"))
+
+    ,testCase "stamp1"
+    ( parsestamp (Just Warning, " 1 armadillo an warning enough") @?=
+      (Just Warning, 1 ,"armadillo an warning enough"))
+
+    ,testCase "stamp2"
+    ( parsestamp (Just Warning," 16 armadillo an warning enough") @?=
+      (Just Warning, 16 ,"armadillo an warning enough"))
+
+    ,testCase "stamp3"
+    ( parsestamp (Just Warning," 166 armadillo an warning enough") @?=
+      (Just Warning, 166 ,"armadillo an warning enough"))
+
+
+    ,testCase "get stamp"
+    ( getstamp (LogMessage (Error 34) 6 "Completed armadillo processing") @?=
+      6)
+
+    ,testCase "insert unknown"
+    ( insert (Unknown "saller stamp does") (Node Leaf (LogMessage (Error 34) 6 "Completed armadillo processing") Leaf) @?=
+      Node Leaf (LogMessage (Error 34) 6 "Completed armadillo processing") Leaf)
+
+
+   ,testCase "insert empty"
+    ( insert new Leaf @?=
+      Node Leaf new Leaf)
+
+
+    ,testCase "insert left"
+    ( insert new (Node Leaf new2 Leaf) @?=
+      Node (Node Leaf new Leaf) new2 Leaf)
+
+    ,testCase "insert right"
+    ( insert new2 (Node Leaf new Leaf) @?=
+      Node Leaf new (Node Leaf new2 Leaf))
+
+    ,testCase "insert rightright"
+    ( insert new3 (Node Leaf new (Node Leaf new2 Leaf)) @?=
+      Node Leaf new (Node Leaf new2 (Node Leaf new3 Leaf)))
+
+    ,testCase "insert rightleft"
+    ( insert new2 (Node Leaf new (Node Leaf new3 Leaf)) @?=
+      Node Leaf new (Node (Node Leaf new2 Leaf) new3 Leaf))
+    
+    ,testCase "inorder"
+    ( inOrder (Node Leaf new (Node (Node (Node Leaf new2 Leaf) new3 (Node (Node Leaf new4 Leaf) new5 Leaf)) new6 (Node Leaf new7 (Node Leaf new8 Leaf)))) @?=
+      [new, new2, new3, new4, new5, new6, new7, new8])
+
+    ,testCase "inorderempty"
+    ( inOrder Leaf @?=
+      [])
+
+
+
+
+
+
 
   ]
 
-main = defaultMain tests
+
+main = defaultMain testes
