@@ -39,7 +39,6 @@ er cd = (Just (Error (read (head (words cd)))), unwords (tail (words cd)))
 
 parsestamp :: (Maybe MessageType, String) -> (Maybe MessageType, TimeStamp, String)
 parsestamp (Nothing, cd) = (Nothing ,0 ,cd)
---parsestamp (e, cd) = (e, 1, unwords(nf (words cd)))
 parsestamp (e, cd) =  (e, read (head (words cd)) , unwords (tail (words cd)))
 
 parsemessage :: (Maybe MessageType, TimeStamp, String) -> LogMessage

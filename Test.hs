@@ -117,13 +117,22 @@ testes = testGroup "unit tests"
 
 
 
-
     , testProperty "build sorted"
     (\msgList -> isSorted (inOrder (build msgList)))
 
     -- show :: Int -> String
     -- gives the String representation of an Int
     -- Use show to test your code to parse Ints
+
+    , testProperty "readerbit"
+    (testshowinthead)
+
+    , testProperty "type"
+    (testmessagetype)
+
+    , testProperty "parseMessage"
+    (makemessage)
+
 
     -- Write a function that takes a MessageType, and makes a String
     -- with the same format as the log file:
@@ -134,6 +143,28 @@ testes = testGroup "unit tests"
     -- stringLogMessage :: LogMessage -> String
     -- Use it to test parseMessage
   ]
+testshowinthead :: Int -> String -> Bool
+testshowinthead i k = i == (read (head (words((show i)++" "++k))))
 
+typetostring :: MessageType -> String
+typetostring (Error x) = "E "++(show x)++" "
+typetostring mss = if mss == Info
+                       then "I"
+                       else "W"
+--E 7 slfdssafl
+
+testmessagetype :: MessageType -> String -> Bool
+testmessagetype q r = (Just q, (strip r)) == (parseType ((typetostring q)++(strip r)))
+
+strip :: String -> String
+strip q = unwords (words q)
+
+logtostring :: LogMessage -> String
+logtostring (LogMessage t sp sr) = (typetostring t)++" "++(show sp)++" "++sr
+
+makemessage :: LogMessage -> Bool
+makemessage (LogMessage t sp sr) = (LogMessage t sp (strip sr)) == parseMessage (logtostring (LogMessage t sp sr))
 
 main = defaultMain testes
+
+
